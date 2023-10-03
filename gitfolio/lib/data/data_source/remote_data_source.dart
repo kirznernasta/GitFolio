@@ -65,7 +65,6 @@ class RemoteDataSource implements IRemoteDataSource {
       queryParameters: {_QueryParameters.minId: _lastFetchedId.toString()},
     );
     final response = await http.get(url);
-    _lastFetchedId += 30;
 
     if (_githubUserPreviewsHasValue && !refresh) {
       final previousWrapper = _githubUserPreviewsSubject.value!;
@@ -82,6 +81,7 @@ class RemoteDataSource implements IRemoteDataSource {
       );
 
       _githubUserPreviewsSubject.add(newWrapper);
+      _lastFetchedId = responseWrapper.data!.users.last.id;
     } else {
       _githubUserPreviewsSubject.add(
         response.toWrapper<GithubUserPreviewList, GithubUserPreviewResponses,
@@ -89,6 +89,7 @@ class RemoteDataSource implements IRemoteDataSource {
           isList: true,
         ),
       );
+      _lastFetchedId = 46;
     }
   }
 
