@@ -1,4 +1,4 @@
-import 'package:gitfolio/domain/entities/api_object.dart';
+import 'package:gitfolio/domain/entities/domain_object.dart';
 import 'package:gitfolio/domain/entities/extended_object.dart';
 
 class GithubOrganization extends ExtendedObject {
@@ -20,7 +20,7 @@ class GithubOrganization extends ExtendedObject {
       ];
 }
 
-class GithubOrganizationList extends SingleListApiObject<GithubOrganization> {
+class GithubOrganizationList extends SingleListDomainObject<GithubOrganization> {
   final List<GithubOrganization> organizations;
 
   const GithubOrganizationList(this.organizations);

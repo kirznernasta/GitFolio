@@ -1,29 +1,42 @@
-import 'package:gitfolio/data/mappers/base/remote_mapper.dart';
-import 'package:gitfolio/data/mappers/mappers.dart';
+import 'package:gitfolio/data/entities/github_user_preview_response.dart';
+import 'package:gitfolio/data/mappers/base/base_mapper.dart';
 import 'package:gitfolio/data/mappers/user/github_user_preview_mapper.dart';
 import 'package:gitfolio/domain/entities/github_user_preview.dart';
 
-class GithubUserPreviewListMapper extends RemoteMapper<GithubUserPreviewList> {
+class GithubUserPreviewListMapper
+    extends BaseMapper<GithubUserPreviewResponses> {
   const GithubUserPreviewListMapper();
 
   @override
-  GithubUserPreviewList fromRemoteJson(Map<String, dynamic> json) {
+  GithubUserPreviewResponses fromJson(Map<String, dynamic> json) {
+    const githubUserPreviewMapper = GithubUserPreviewMapper();
+
     final data = json[_Keys.items]
         .map(
-          (json) => Mappers.fromRemoteJson<GithubUserPreview,
-              GithubUserPreviewMapper>(
-            json,
-          ),
+          (json) => githubUserPreviewMapper.fromJson(json),
         )
         .toList();
-    return GithubUserPreviewList(
+    return GithubUserPreviewResponses(
       (data as List<dynamic>)
-          .map((userPreview) => userPreview as GithubUserPreview)
+          .map((userPreview) => userPreview as GithubUserPreviewResponse)
+          .toList(),
+    );
+  }
+
+  @override
+  GithubUserPreviewList toDomainObject(GithubUserPreviewResponses response) {
+    const githubUserPreviewMapper = GithubUserPreviewMapper();
+
+    return GithubUserPreviewList(
+      response.users
+          .map(
+            githubUserPreviewMapper.toDomainObject,
+          )
           .toList(),
     );
   }
 }
 
-abstract class _Keys{
+abstract class _Keys {
   static const items = 'items';
 }

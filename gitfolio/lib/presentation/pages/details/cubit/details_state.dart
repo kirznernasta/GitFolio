@@ -1,18 +1,16 @@
-import 'package:equatable/equatable.dart';
-import 'package:gitfolio/domain/entities/github_organization.dart';
-import 'package:gitfolio/domain/entities/github_user_details.dart';
+part of 'details_cubit.dart';
 
 class DetailsState extends Equatable {
   final String? userLogin;
   final GithubUserDetails? userDetails;
-  final List<GithubOrganization> userOrganizations;
+  final List<GithubOrganization>? userOrganizations;
   final String errorMessage;
   final bool isLoading;
 
   const DetailsState({
     this.userLogin,
     this.userDetails,
-    this.userOrganizations = const [],
+    this.userOrganizations,
     this.isLoading = true,
     this.errorMessage = '',
   });

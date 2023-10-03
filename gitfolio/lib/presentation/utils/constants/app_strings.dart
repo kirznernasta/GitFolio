@@ -1,4 +1,4 @@
-abstract class AppStrings {
+abstract final class AppStrings {
   static const loadingTitle = '...';
   static const oops = 'Oooops...';
   static const error = 'Some error occurred';

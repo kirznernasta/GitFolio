@@ -1,5 +1,8 @@
+import 'package:gitfolio/data/entities/github_organization_response.dart';
+import 'package:gitfolio/data/entities/github_user_details_response.dart';
+import 'package:gitfolio/data/entities/github_user_preview_response.dart';
 import 'package:http/http.dart' as http;
-import 'package:gitfolio/data/data_source/i_remote_data_source.dart';
+import 'package:gitfolio/data/data_source/interfaces/i_remote_data_source.dart';
 import 'package:gitfolio/data/mappers/user/github_organization_list_mapper.dart';
 import 'package:gitfolio/data/mappers/user/github_user_details_mapper.dart';
 import 'package:gitfolio/data/mappers/user/github_user_preview_list_mapper.dart';
@@ -8,6 +11,7 @@ import 'package:gitfolio/domain/entities/github_organization.dart';
 import 'package:gitfolio/domain/entities/github_user_details.dart';
 import 'package:gitfolio/domain/entities/github_user_preview.dart';
 import 'package:gitfolio/domain/utils/wrapper.dart';
+import 'package:rxdart/rxdart.dart';
 
 class RemoteDataSource implements IRemoteDataSource {
   static const _baseUrl = 'https://api.github.com/users';
@@ -15,14 +19,43 @@ class RemoteDataSource implements IRemoteDataSource {
 
   static int _lastFetchedId = 0;
 
+  final BehaviorSubject<Wrapper<GithubOrganizationList>?>
+      _githubOrganizationsSubject = BehaviorSubject.seeded(null);
+
+  final BehaviorSubject<Wrapper<GithubUserDetails>?> _githubUserDetailsSubject =
+      BehaviorSubject.seeded(null);
+
+  final BehaviorSubject<Wrapper<GithubUserPreviewList>?>
+      _githubUserPreviewsSubject = BehaviorSubject.seeded(null);
+
+  bool get _githubUserPreviewsHasValue =>
+      _githubUserPreviewsSubject.value != null &&
+      _githubUserPreviewsSubject.hasValue;
+
   @override
-  Future<Wrapper<GithubUserDetails>> getUserDetails(String userLogin) async {
+  Stream<Wrapper<GithubUserDetails>?> get githubUserDetailsStream =>
+      _githubUserDetailsSubject;
+
+  @override
+  Stream<Wrapper<GithubOrganizationList>?> get githubUserOrganizationStream =>
+      _githubOrganizationsSubject;
+
+  @override
+  Stream<Wrapper<GithubUserPreviewList>?> get githubUserPreviewsStream =>
+      _githubUserPreviewsSubject;
+
+  @override
+  Future<void> getUserDetails(String userLogin) async {
     final response = await http.get(Uri.parse('$_baseUrl/$userLogin'));
-    return response.toWrapper<GithubUserDetails, GithubUserDetailsMapper>();
+
+    _githubUserDetailsSubject.add(
+      response.toWrapper<GithubUserDetails, GithubUserDetailsResponse,
+          GithubUserDetailsMapper>(),
+    );
   }
 
   @override
-  Future<Wrapper<GithubUserPreviewList>> getUsersList({
+  Future<void> getUsersList({
     bool refresh = false,
   }) async {
     if (refresh) {
@@ -33,22 +66,51 @@ class RemoteDataSource implements IRemoteDataSource {
     );
     final response = await http.get(url);
     _lastFetchedId += 30;
-    return response
-        .toWrapper<GithubUserPreviewList, GithubUserPreviewListMapper>(
-      isList: true,
-    );
+
+    if (_githubUserPreviewsHasValue && !refresh) {
+      final previousWrapper = _githubUserPreviewsSubject.value!;
+
+      final responseWrapper = response.toWrapper<GithubUserPreviewList,
+          GithubUserPreviewResponses, GithubUserPreviewListMapper>(
+        isList: true,
+      );
+
+      final newWrapper = Wrapper(
+        data: GithubUserPreviewList(
+          [...previousWrapper.data!.users, ...responseWrapper.data!.users],
+        ),
+      );
+
+      _githubUserPreviewsSubject.add(newWrapper);
+    } else {
+      _githubUserPreviewsSubject.add(
+        response.toWrapper<GithubUserPreviewList, GithubUserPreviewResponses,
+            GithubUserPreviewListMapper>(
+          isList: true,
+        ),
+      );
+    }
   }
 
   @override
-  Future<Wrapper<GithubOrganizationList>> getUserOrganization(
+  Future<void> getUserOrganization(
     String userLogin,
   ) async {
     final response =
         await http.get(Uri.parse('$_baseUrl/$userLogin$_organizations'));
-    return response
-        .toWrapper<GithubOrganizationList, GithubOrganizationListMapper>(
-      isList: true,
+
+    _githubOrganizationsSubject.add(
+      response.toWrapper<GithubOrganizationList, GithubOrganizationResponses,
+          GithubOrganizationResponsesMapper>(
+        isList: true,
+      ),
     );
+  }
+
+  @override
+  void clearDetailsSubjects() {
+    _githubUserDetailsSubject.add(null);
+    _githubOrganizationsSubject.add(null);
   }
 }
 

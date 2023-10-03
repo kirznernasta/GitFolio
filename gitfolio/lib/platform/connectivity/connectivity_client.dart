@@ -1,7 +1,7 @@
 import 'package:internet_connection_checker/internet_connection_checker.dart';
-import 'package:gitfolio/domain/data_interfaces/i_connectivity_repository.dart';
+import 'package:gitfolio/domain/client_interfaces/i_connectivity_client.dart';
 
-class ConnectivityRepository implements IConnectivityRepository {
+class ConnectivityClient implements IConnectivityClient {
   final _connectionChecker = InternetConnectionChecker.createInstance();
 
   @override
