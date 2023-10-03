@@ -9,7 +9,16 @@ class GithubUserDetailsRepository implements IGithubUserDetailsRepository {
   const GithubUserDetailsRepository(this._remoteDataSource);
 
   @override
-  Future<Wrapper<GithubUserDetails>> getUserDetails(String userLogin) {
+  Stream<Wrapper<GithubUserDetails>?> get githubUserDetailsStream =>
+      _remoteDataSource.githubUserDetailsStream;
+
+  @override
+  Future<void> getUserDetails(String userLogin) {
     return _remoteDataSource.getUserDetails(userLogin);
+  }
+
+  @override
+  void clearDetailsStreams() {
+    _remoteDataSource.clearDetailsSubjects();
   }
 }

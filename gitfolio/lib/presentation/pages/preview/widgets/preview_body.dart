@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gitfolio/presentation/pages/details/details_page.dart';
@@ -10,7 +9,7 @@ import 'package:gitfolio/presentation/utils/constants/app_dimensions.dart';
 import 'package:gitfolio/presentation/utils/constants/app_strings.dart';
 
 final class PreviewBody extends StatefulWidget {
-  final AsyncCallback onRefresh;
+  final VoidCallback onRefresh;
   final VoidCallback loadMoreUserPreviews;
 
   const PreviewBody({
@@ -65,7 +64,7 @@ class _PreviewBodyState extends State<PreviewBody> {
         return state.usersPreview.isEmpty && state.isLoading
             ? const Loading()
             : RefreshIndicator(
-                onRefresh: widget.onRefresh,
+                onRefresh: () async => widget.onRefresh(),
                 child: state.hasError && state.usersPreview.isEmpty
                     ? ListView(
                         children: [

@@ -9,9 +9,11 @@ class GithubOrganizationRepository implements IGithubOrganizationRepository {
   const GithubOrganizationRepository(this._remoteDataSource);
 
   @override
-  Future<Wrapper<GithubOrganizationList>> getUserOrganizations(
-    String userLogin,
-  ) {
+  Stream<Wrapper<GithubOrganizationList>?> get githubOrganizationListStream =>
+      _remoteDataSource.githubUserOrganizationStream;
+
+  @override
+  Future<void> getUserOrganizations(String userLogin) {
     return _remoteDataSource.getUserOrganization(userLogin);
   }
 }

@@ -5,14 +5,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gitfolio/domain/entities/github_organization.dart';
 import 'package:gitfolio/domain/entities/github_user_details.dart';
 import 'package:gitfolio/domain/interactors/details_interactor.dart';
+import 'package:gitfolio/domain/utils/wrapper.dart';
 import 'package:gitfolio/presentation/utils/constants/app_strings.dart';
 
 part 'details_state.dart';
 
 final class DetailsCubit extends Cubit<DetailsState> {
   final DetailsInteractor _detailsInteractor;
-
-  StreamSubscription<bool>? _connectivitySubscription;
 
   DetailsCubit(
     this._detailsInteractor,
@@ -22,30 +21,70 @@ final class DetailsCubit extends Cubit<DetailsState> {
     _init();
   }
 
+  StreamSubscription<bool>? _connectivitySubscription;
+
+  StreamSubscription<Wrapper<GithubOrganizationList>?>?
+      _githubOrganizationListSubscription;
+
+  StreamSubscription<Wrapper<GithubUserDetails>?>?
+      _githubUserDetailsSubscription;
+
   @override
   Future<void> close() {
     _connectivitySubscription?.cancel();
     _connectivitySubscription = null;
 
+    _githubOrganizationListSubscription?.cancel();
+    _githubOrganizationListSubscription = null;
+
+    _githubUserDetailsSubscription?.cancel();
+    _githubUserDetailsSubscription = null;
+
+    _detailsInteractor.clearDetailsStreams();
+
     return super.close();
   }
 
-  void initWithData(String userLogin) async {
+  void fetchUserInformation(String userLogin) {
+    _detailsInteractor.getUserDetails(userLogin);
+    _detailsInteractor.getUserOrganizations(userLogin);
+  }
+
+  void _init() {
+    _subscribeAll();
+  }
+
+  void _subscribeAll() {
+    _githubUserDetailsSubscription?.cancel();
+    _githubUserDetailsSubscription =
+        _detailsInteractor.githubUserDetailsStream.listen(
+      _onNewUserDetails,
+    );
+
+    _githubOrganizationListSubscription?.cancel();
+    _githubOrganizationListSubscription =
+        _detailsInteractor.githubOrganizationListStream.listen(
+      _onNewUserOrganizations,
+    );
+  }
+
+  void _onNewUserDetails(Wrapper<GithubUserDetails>? detailsWrapper) {
+    if (detailsWrapper != null) _handleDetailsWrapper(detailsWrapper);
+  }
+
+  Future<void> _handleDetailsWrapper(
+    Wrapper<GithubUserDetails> detailsWrapper,
+  ) async {
     GithubUserDetails? userDetails;
     var errorMessage = '';
-    List<GithubOrganization>? userOrganizations;
 
     emit(
       state.newState(isLoading: true),
     );
 
     if (await _detailsInteractor.hasInternetConnection) {
-      final detailsWrapper = await _detailsInteractor.getUserDetails(userLogin);
-      final userOrganizationsWrapper =
-          await _detailsInteractor.getUserOrganizations(userLogin);
-      if (detailsWrapper.isSuccess && userOrganizationsWrapper.isSuccess) {
+      if (detailsWrapper.isSuccess) {
         userDetails = detailsWrapper.data;
-        userOrganizations = userOrganizationsWrapper.data?.organizations;
       } else {
         errorMessage = AppStrings.error;
       }
@@ -54,23 +93,46 @@ final class DetailsCubit extends Cubit<DetailsState> {
     }
     emit(
       state.newState(
-        userLogin: userLogin,
         userDetails: userDetails,
-        userOrganizations: userOrganizations,
-        isLoading: false,
+        isLoading: !(userDetails != null && state.userOrganizations != null),
         errorMessage: errorMessage,
       ),
     );
   }
 
-  void _init() {
-    _connectivitySubscription =
-        _detailsInteractor.connectivityStatusStream.listen(
-      (hasConnection) {
-        if (hasConnection && state.userLogin != null) {
-          initWithData(state.userLogin!);
-        }
-      },
+  void _onNewUserOrganizations(
+    Wrapper<GithubOrganizationList>? organizationListWrapper,
+  ) {
+    if (organizationListWrapper != null) {
+      _handleOrganizationListWrapper(organizationListWrapper);
+    }
+  }
+
+  Future<void> _handleOrganizationListWrapper(
+    Wrapper<GithubOrganizationList> organizationListWrapper,
+  ) async {
+    List<GithubOrganization>? userOrganizations;
+    var errorMessage = '';
+
+    emit(
+      state.newState(isLoading: true),
+    );
+
+    if (await _detailsInteractor.hasInternetConnection) {
+      if (organizationListWrapper.isSuccess) {
+        userOrganizations = organizationListWrapper.data?.organizations;
+      } else {
+        errorMessage = AppStrings.error;
+      }
+    } else {
+      errorMessage = AppStrings.connectionError;
+    }
+    emit(
+      state.newState(
+        userOrganizations: userOrganizations,
+        isLoading: !(state.userDetails != null && userOrganizations != null),
+        errorMessage: errorMessage,
+      ),
     );
   }
 }

@@ -13,10 +13,10 @@ import 'package:intl/intl.dart';
 part 'package:gitfolio/presentation/pages/details/widgets/user_widgets.dart';
 
 final class DetailsBody extends StatefulWidget {
-  final VoidCallback initUserWithData;
+  final VoidCallback fetchUserInformation;
 
   const DetailsBody({
-    required this.initUserWithData,
+    required this.fetchUserInformation,
     super.key,
   });
 
@@ -29,7 +29,7 @@ class _DetailsBodyState extends State<DetailsBody> {
   void initState() {
     super.initState();
 
-    widget.initUserWithData();
+    widget.fetchUserInformation();
   }
 
   Future<void> _onOrganizationTap(
@@ -81,11 +81,12 @@ class _DetailsBodyState extends State<DetailsBody> {
                               .format(state.userDetails!.createdAt),
                         ),
                         const Spacer(),
-                        if (state.userOrganizations.isNotEmpty)
+                        if (state.userOrganizations != null &&
+                            state.userOrganizations!.isNotEmpty)
                           FilledButton(
                             onPressed: () => _onOrganizationTap(
                               context,
-                              state.userOrganizations,
+                              state.userOrganizations!,
                             ),
                             child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,

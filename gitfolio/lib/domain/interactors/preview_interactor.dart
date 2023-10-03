@@ -17,9 +17,10 @@ final class PreviewInteractor {
   Stream<bool> get connectivityStatusStream =>
       _connectivityClient.connectivityStatus;
 
-  Future<Wrapper<GithubUserPreviewList>> getUserPreviews({
-    bool refresh = false,
-  }) {
+  Stream<Wrapper<GithubUserPreviewList>?> get githubUserPreviewListStream =>
+      _githubUserPreviewRepository.githubUserPreviewListStream;
+
+  Future<void> getUserPreviews({bool refresh = false}) {
     return _githubUserPreviewRepository.getUserPreviews(refresh: refresh);
   }
 }

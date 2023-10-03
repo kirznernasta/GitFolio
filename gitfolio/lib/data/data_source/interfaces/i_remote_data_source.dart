@@ -4,9 +4,17 @@ import 'package:gitfolio/domain/entities/github_user_details.dart';
 import 'package:gitfolio/domain/utils/wrapper.dart';
 
 abstract interface class IRemoteDataSource {
-  Future<Wrapper<GithubUserPreviewList>> getUsersList({bool refresh = false});
+  Stream<Wrapper<GithubUserPreviewList>?> get githubUserPreviewsStream;
 
-  Future<Wrapper<GithubUserDetails>> getUserDetails(String userLogin);
+  Stream<Wrapper<GithubUserDetails>?> get githubUserDetailsStream;
 
-  Future<Wrapper<GithubOrganizationList>> getUserOrganization(String userLogin);
+  Stream<Wrapper<GithubOrganizationList>?> get githubUserOrganizationStream;
+
+  Future<void> getUsersList({bool refresh = false});
+
+  Future<void> getUserDetails(String userLogin);
+
+  Future<void> getUserOrganization(String userLogin);
+
+  void clearDetailsSubjects();
 }

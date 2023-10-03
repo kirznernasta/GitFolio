@@ -21,13 +21,21 @@ final class DetailsInteractor {
   Stream<bool> get connectivityStatusStream =>
       _connectivityClient.connectivityStatus;
 
-  Future<Wrapper<GithubUserDetails>> getUserDetails(String userLogin) async {
+  Stream<Wrapper<GithubUserDetails>?> get githubUserDetailsStream =>
+      _githubUserDetailsRepository.githubUserDetailsStream;
+
+  Stream<Wrapper<GithubOrganizationList>?> get githubOrganizationListStream =>
+      _githubOrganizationRepository.githubOrganizationListStream;
+
+  Future<void> getUserDetails(String userLogin) async {
     return _githubUserDetailsRepository.getUserDetails(userLogin);
   }
 
-  Future<Wrapper<GithubOrganizationList>> getUserOrganizations(
-    String userLogin,
-  ) {
+  Future<void> getUserOrganizations(String userLogin) {
     return _githubOrganizationRepository.getUserOrganizations(userLogin);
+  }
+
+  void clearDetailsStreams() {
+    _githubUserDetailsRepository.clearDetailsStreams();
   }
 }

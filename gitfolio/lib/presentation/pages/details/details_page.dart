@@ -50,7 +50,9 @@ class _DetailsPageState extends State<DetailsPage> {
               ],
             ),
             body: DetailsBody(
-              initUserWithData: () => cubit.initWithData(widget.userLogin),
+              fetchUserInformation: () => cubit.fetchUserInformation(
+                widget.userLogin,
+              ),
             ),
           );
         },

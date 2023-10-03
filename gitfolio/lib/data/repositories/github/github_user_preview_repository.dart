@@ -9,7 +9,11 @@ class GithubUserPreviewRepository implements IGithubUserPreviewRepository {
   const GithubUserPreviewRepository(this._remoteDataSource);
 
   @override
-  Future<Wrapper<GithubUserPreviewList>> getUserPreviews({
+  Stream<Wrapper<GithubUserPreviewList>?> get githubUserPreviewListStream =>
+      _remoteDataSource.githubUserPreviewsStream;
+
+  @override
+  Future<void> getUserPreviews({
     bool refresh = false,
   }) {
     return _remoteDataSource.getUsersList(refresh: refresh);
