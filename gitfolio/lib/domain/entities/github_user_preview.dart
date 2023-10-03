@@ -1,8 +1,7 @@
-import 'package:gitfolio/domain/entities/api_object.dart';
+import 'package:gitfolio/domain/entities/domain_object.dart';
 import 'package:gitfolio/domain/entities/extended_object.dart';
 
 class GithubUserPreview extends ExtendedObject {
-
   const GithubUserPreview({
     required super.login,
     required super.id,
@@ -17,7 +16,7 @@ class GithubUserPreview extends ExtendedObject {
       ];
 }
 
-class GithubUserPreviewList extends SingleListApiObject<GithubUserPreview> {
+class GithubUserPreviewList extends SingleListDomainObject<GithubUserPreview> {
   final List<GithubUserPreview> users;
 
   const GithubUserPreviewList(this.users);

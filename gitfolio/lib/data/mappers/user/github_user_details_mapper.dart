@@ -1,19 +1,32 @@
-import 'package:gitfolio/data/mappers/base/remote_mapper.dart';
+import 'package:gitfolio/data/entities/github_user_details_response.dart';
+import 'package:gitfolio/data/mappers/base/base_mapper.dart';
 import 'package:gitfolio/domain/entities/github_user_details.dart';
 
-class GithubUserDetailsMapper extends RemoteMapper<GithubUserDetails> {
+class GithubUserDetailsMapper extends BaseMapper<GithubUserDetailsResponse> {
   const GithubUserDetailsMapper();
 
   @override
-  GithubUserDetails fromRemoteJson(Map<String, dynamic> json) {
-    return GithubUserDetails(
+  GithubUserDetailsResponse fromJson(Map<String, dynamic> json) {
+    return GithubUserDetailsResponse(
       email: json[_Keys.email],
-      createdAt: DateTime.parse(json[_Keys.createdAt]),
+      createdAt: json[_Keys.createdAt],
       followingCount: json[_Keys.followingCount],
       followersCount: json[_Keys.followersCount],
       login: json[_Keys.login],
       id: json[_Keys.id],
       avatarUrl: json[_Keys.avatarUrl],
+    );
+  }
+
+  @override
+  GithubUserDetails toDomainObject(GithubUserDetailsResponse response) {
+    return GithubUserDetails(
+      createdAt: DateTime.parse(response.createdAt),
+      followingCount: response.followingCount,
+      followersCount: response.followersCount,
+      login: response.login,
+      id: response.id,
+      avatarUrl: response.avatarUrl,
     );
   }
 }

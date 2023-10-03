@@ -1,5 +1,4 @@
-import 'package:equatable/equatable.dart';
-import 'package:gitfolio/domain/entities/github_user_preview.dart';
+part of 'preview_cubit.dart';
 
 class PreviewState extends Equatable {
   final bool isLoading;

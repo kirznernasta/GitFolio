@@ -1,6 +1,4 @@
-import 'package:equatable/equatable.dart';
-
-abstract class ApiObject extends Equatable {
+abstract class ApiObject {
   const ApiObject();
 }
 

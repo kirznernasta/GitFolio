@@ -1,18 +1,19 @@
+import 'package:equatable/equatable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gitfolio/domain/entities/github_user_preview.dart';
-import 'package:gitfolio/domain/interactors/connectivity_interactor.dart';
-import 'package:gitfolio/domain/interactors/github_user_preview_interacor.dart';
-import 'package:gitfolio/presentation/base/base_cubit.dart';
-import 'package:gitfolio/presentation/pages/preview/preview_state.dart';
+import 'package:gitfolio/domain/interactors/preview_interactor.dart';
 import 'package:gitfolio/presentation/utils/constants/app_strings.dart';
 
-class PreviewCubit extends BaseCubit<PreviewState> {
-  final GithubUserPreviewInteractor _previewInteractor;
-  final ConnectivityInteractor _connectivityInteractor;
+part 'preview_state.dart';
+
+class PreviewCubit extends Cubit<PreviewState> {
+  final PreviewInteractor _previewInteractor;
 
   PreviewCubit(
     this._previewInteractor,
-    this._connectivityInteractor,
-  ) : super(const PreviewState()) {
+  ) : super(
+          const PreviewState(),
+        ) {
     _loadInitialUsersPreviews();
   }
 
@@ -22,7 +23,7 @@ class PreviewCubit extends BaseCubit<PreviewState> {
 
     emit(state.newState(isLoading: true));
 
-    if (await _connectivityInteractor.hasConnection) {
+    if (await _previewInteractor.hasInternetConnection) {
       final initialUsersPreviewWrapper =
           await _previewInteractor.getUserPreviews(refresh: refresh);
       if (initialUsersPreviewWrapper.isSuccess) {
@@ -53,7 +54,7 @@ class PreviewCubit extends BaseCubit<PreviewState> {
 
     emit(state.newState(isLoading: true));
 
-    if (await _connectivityInteractor.hasConnection) {
+    if (await _previewInteractor.hasInternetConnection) {
       final usersPreviewWrapper = await _previewInteractor.getUserPreviews();
       if (usersPreviewWrapper.isSuccess) {
         usersPreview = [

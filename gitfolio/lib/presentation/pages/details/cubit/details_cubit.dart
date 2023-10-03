@@ -1,42 +1,33 @@
 import 'dart:async';
 
+import 'package:equatable/equatable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gitfolio/domain/entities/github_organization.dart';
 import 'package:gitfolio/domain/entities/github_user_details.dart';
-import 'package:gitfolio/domain/interactors/connectivity_interactor.dart';
-import 'package:gitfolio/domain/interactors/github_organization_interactor.dart';
-import 'package:gitfolio/domain/interactors/github_user_details_interactor.dart';
-import 'package:gitfolio/presentation/base/base_cubit.dart';
-import 'package:gitfolio/presentation/pages/details/details_state.dart';
+import 'package:gitfolio/domain/interactors/details_interactor.dart';
 import 'package:gitfolio/presentation/utils/constants/app_strings.dart';
 
-class DetailsCubit extends BaseCubit<DetailsState> {
-  final GithubUserDetailsInteractor _detailsInteractor;
-  final GithubOrganizationInteractor _organizationInteractor;
-  final ConnectivityInteractor _connectivityInteractor;
+part 'details_state.dart';
+
+final class DetailsCubit extends Cubit<DetailsState> {
+  final DetailsInteractor _detailsInteractor;
 
   StreamSubscription<bool>? _connectivitySubscription;
 
   DetailsCubit(
     this._detailsInteractor,
-    this._organizationInteractor,
-    this._connectivityInteractor,
-  ) : super(const DetailsState());
-
-  @override
-  void init() {
-    _connectivitySubscription =
-        _connectivityInteractor.connectivityStatus.listen((hasConnection) {
-      if (hasConnection && state.userLogin != null) {
-        initWithData(state.userLogin!);
-      }
-    });
+  ) : super(
+          const DetailsState(),
+        ) {
+    _init();
   }
 
   @override
-  void dispose() {
+  Future<void> close() {
     _connectivitySubscription?.cancel();
     _connectivitySubscription = null;
-    super.dispose();
+
+    return super.close();
   }
 
   void initWithData(String userLogin) async {
@@ -44,12 +35,14 @@ class DetailsCubit extends BaseCubit<DetailsState> {
     var errorMessage = '';
     List<GithubOrganization>? userOrganizations;
 
-    emit(state.newState(isLoading: true));
+    emit(
+      state.newState(isLoading: true),
+    );
 
-    if (await _connectivityInteractor.hasConnection) {
+    if (await _detailsInteractor.hasInternetConnection) {
       final detailsWrapper = await _detailsInteractor.getUserDetails(userLogin);
       final userOrganizationsWrapper =
-          await _organizationInteractor.getUserOrganizations(userLogin);
+          await _detailsInteractor.getUserOrganizations(userLogin);
       if (detailsWrapper.isSuccess && userOrganizationsWrapper.isSuccess) {
         userDetails = detailsWrapper.data;
         userOrganizations = userOrganizationsWrapper.data?.organizations;
@@ -67,6 +60,17 @@ class DetailsCubit extends BaseCubit<DetailsState> {
         isLoading: false,
         errorMessage: errorMessage,
       ),
+    );
+  }
+
+  void _init() {
+    _connectivitySubscription =
+        _detailsInteractor.connectivityStatusStream.listen(
+      (hasConnection) {
+        if (hasConnection && state.userLogin != null) {
+          initWithData(state.userLogin!);
+        }
+      },
     );
   }
 }

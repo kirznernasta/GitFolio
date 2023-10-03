@@ -1,4 +1,4 @@
-abstract class AppDimensions {
+abstract final class AppDimensions {
   static const smallMargin = 8.0;
   static const middleMargin = 16.0;
   static const bigMargin = 32.0;

@@ -1,5 +1,5 @@
-import 'package:gitfolio/data/data_source/i_remote_data_source.dart';
-import 'package:gitfolio/domain/data_interfaces/github/i_github_organization_repository.dart';
+import 'package:gitfolio/data/data_source/interfaces/i_remote_data_source.dart';
+import 'package:gitfolio/domain/interfaces/github/i_github_organization_repository.dart';
 import 'package:gitfolio/domain/entities/github_organization.dart';
 import 'package:gitfolio/domain/utils/wrapper.dart';
 

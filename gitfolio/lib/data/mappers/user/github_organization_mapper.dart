@@ -1,16 +1,27 @@
-import 'package:gitfolio/data/mappers/base/remote_mapper.dart';
+import 'package:gitfolio/data/entities/github_organization_response.dart';
+import 'package:gitfolio/data/mappers/base/base_mapper.dart';
 import 'package:gitfolio/domain/entities/github_organization.dart';
 
-class GithubOrganizationMapper extends RemoteMapper<GithubOrganization> {
+class GithubOrganizationMapper extends BaseMapper<GithubOrganizationResponse> {
   const GithubOrganizationMapper();
 
   @override
-  GithubOrganization fromRemoteJson(Map<String, dynamic> json) {
-    return GithubOrganization(
+  GithubOrganizationResponse fromJson(Map<String, dynamic> json) {
+    return GithubOrganizationResponse(
       id: json[_Keys.id],
       login: json[_Keys.login],
       avatarUrl: json[_Keys.avatarUrl],
       description: json[_Keys.description],
+    );
+  }
+
+  @override
+  GithubOrganization toDomainObject(GithubOrganizationResponse response) {
+    return GithubOrganization(
+      id: response.id,
+      login: response.login,
+      avatarUrl: response.avatarUrl,
+      description: response.description,
     );
   }
 }

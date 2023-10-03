@@ -1,4 +1,4 @@
-part of 'package:gitfolio/presentation/pages/details/details_page.dart';
+part of 'package:gitfolio/presentation/pages/details/widgets/details_body.dart';
 
 class _UserImage extends StatelessWidget {
   final String url;

@@ -1,5 +1,8 @@
+import 'package:gitfolio/data/entities/github_organization_response.dart';
+import 'package:gitfolio/data/entities/github_user_details_response.dart';
+import 'package:gitfolio/data/entities/github_user_preview_response.dart';
 import 'package:http/http.dart' as http;
-import 'package:gitfolio/data/data_source/i_remote_data_source.dart';
+import 'package:gitfolio/data/data_source/interfaces/i_remote_data_source.dart';
 import 'package:gitfolio/data/mappers/user/github_organization_list_mapper.dart';
 import 'package:gitfolio/data/mappers/user/github_user_details_mapper.dart';
 import 'package:gitfolio/data/mappers/user/github_user_preview_list_mapper.dart';
@@ -18,7 +21,9 @@ class RemoteDataSource implements IRemoteDataSource {
   @override
   Future<Wrapper<GithubUserDetails>> getUserDetails(String userLogin) async {
     final response = await http.get(Uri.parse('$_baseUrl/$userLogin'));
-    return response.toWrapper<GithubUserDetails, GithubUserDetailsMapper>();
+
+    return response.toWrapper<GithubUserDetails, GithubUserDetailsResponse,
+        GithubUserDetailsMapper>();
   }
 
   @override
@@ -33,8 +38,8 @@ class RemoteDataSource implements IRemoteDataSource {
     );
     final response = await http.get(url);
     _lastFetchedId += 30;
-    return response
-        .toWrapper<GithubUserPreviewList, GithubUserPreviewListMapper>(
+    return response.toWrapper<GithubUserPreviewList, GithubUserPreviewResponses,
+        GithubUserPreviewListMapper>(
       isList: true,
     );
   }
@@ -45,8 +50,8 @@ class RemoteDataSource implements IRemoteDataSource {
   ) async {
     final response =
         await http.get(Uri.parse('$_baseUrl/$userLogin$_organizations'));
-    return response
-        .toWrapper<GithubOrganizationList, GithubOrganizationListMapper>(
+    return response.toWrapper<GithubOrganizationList,
+        GithubOrganizationResponses, GithubOrganizationResponsesMapper>(
       isList: true,
     );
   }
